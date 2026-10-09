@@ -1,0 +1,40 @@
+:root { color-scheme: dark; }
+
+html, body {
+  margin: 0;
+  background: #1e1e2e;
+  color: #e6e6f0;
+  font-family: sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+body { padding: 24px 28px 48px; }
+
+h1, h2, h3 { line-height: 1.25; }
+
+a { color: #89b4fa; }
+
+code, pre {
+  font-family: monospace;
+  background: #181825;
+}
+
+pre {
+  padding: 12px 14px;
+  overflow: auto;
+  border-radius: 8px;
+}
+
+code { padding: 0.1em 0.3em; border-radius: 4px; }
+
+pre code { padding: 0; background: transparent; }
+
+img { max-width: 100%; height: auto; }
+
+blockquote {
+  margin-left: 0;
+  padding-left: 1em;
+  border-left: 3px solid #45475a;
+  color: #cdd6f4;
+}
