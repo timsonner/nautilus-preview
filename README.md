@@ -1,37 +1,63 @@
 # nautilus-preview
 
-Space in Files opens a preview of the selected file. Markdown is rendered, and `r` or the header button switches between that view and the source. Images open in the same window.
+nautilus-preview is the Space previewer for GNOME Files (Nautilus). It owns the `org.gnome.NautilusPreviewer` bus name that Files already calls, renders Markdown, and shows images in the same window. Sushi claims that same name; quit Sushi, or another previewer, so Space opens this one.
 
-This is a Nautilus previewer. It owns the `org.gnome.NautilusPreviewer` bus name that Files already calls, which is the same slot [Sushi](https://gitlab.gnome.org/GNOME/sushi) uses. It is not an Omarchy shell plugin. The [plugin library](https://plugins.omarchy.org/publish.html) only lists Quickshell plugins (`manifest.json`, QML entry points, `omarchy plugin add`). A Nautilus preview cannot pass that check, so this repository is installed with the script below.
+## Prerequisites
 
-## Install
+- An Omarchy session with Python 3 and a user D-Bus session
+- PyGObject (`import gi`; Arch package `python-gobject`)
+- GTK 4 and WebKitGTK 6.0 (Arch package `webkitgtk-6.0`, which depends on GTK 4)
+- `python-cmarkgfm` for GitHub-flavored Markdown
 
-Dependencies:
+## Install, run, and test
+
+Install the packages, then copy this tree into the user data directory. `scripts/install.sh` writes `~/.local/bin/nautilus-preview` and `org.gnome.NautilusPreviewer.service` under `${XDG_DATA_HOME:-$HOME/.local/share}/dbus-1/services`. The service starts `nautilus-preview --gapplication-service`.
 
 ```sh
-omarchy pkg add webkitgtk-6.0 python-cmarkgfm
-```
-
-Then:
-
-```sh
+omarchy pkg add webkitgtk-6.0 python-gobject python-cmarkgfm
 ./scripts/install.sh
 ```
 
-Restart Files. Select a file and press Space. Press Space again, or Escape, to close the preview. Up, Down, Left, and Right move the selection in Files.
+Restart Files. Select a file and press Space.
 
-Keep this and Sushi uninstalled together. Both claim `org.gnome.NautilusPreviewer`, and only one of them can answer Space.
+From a checkout, the same process opens one file and keeps the bus name:
 
-## Markdown and images
+```sh
+python3 -m nautilus_preview samples/demo.md
+```
 
-`.md`, `.markdown`, and `.mdown` open rendered. The header button is labeled **Raw** in that view and **Rendered** after you switch. `r` toggles the same way. Relative images in the Markdown are loaded from the file's directory. JavaScript and remote `http`/`https` content stay off.
+Run the tests from the repository root:
 
-`png`, `jpeg`, `gif`, `webp`, and `bmp` open as images. Other files show the name, type, and size.
+```sh
+python3 -m unittest discover -s tests -v
+```
 
-## Remove
+`tests/test_window.py` opens a GTK window and skips when no display is available.
+
+Remove the installed copy, then restart Files:
 
 ```sh
 ./scripts/uninstall.sh
 ```
 
-Restart Files afterward.
+## Usage
+
+Press Space or Escape to close the preview. Up, Down, Left, and Right ask Files to move the selection.
+
+`.md`, `.markdown`, and `.mdown` open rendered. The header button is **Raw** in that view and **Rendered** after you switch. `r` toggles the same way. Relative images load from the file's directory. JavaScript stays off, and `http`/`https` responses are ignored.
+
+`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, and `.bmp` open as images. Other local files show the name, content type, and size. A URI with no local path shows the name and "Only local files can be previewed."
+
+`samples/demo.md` and `samples/demo.png` are the fixtures the window test loads.
+
+## Layout
+
+- `nautilus_preview/` — previewer package (`python3 -m nautilus_preview`)
+- `data/` — D-Bus service template and `preview.css`
+- `scripts/` — `install.sh` and `uninstall.sh`
+- `samples/` — `demo.md` and `demo.png`
+- `tests/` — `unittest` modules
+
+## License
+
+[MIT](LICENSE)
